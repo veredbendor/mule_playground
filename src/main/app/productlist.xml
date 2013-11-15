@@ -1,6 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:data-mapper="http://www.mulesoft.org/schema/mule/ee/data-mapper" xmlns:jdbc-ee="http://www.mulesoft.org/schema/mule/ee/jdbc" xmlns:scripting="http://www.mulesoft.org/schema/mule/scripting" xmlns:json="http://www.mulesoft.org/schema/mule/json" xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns:cxf="http://www.mulesoft.org/schema/mule/cxf" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:spring="http://www.springframework.org/schema/beans" version="EE-3.4.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+<mule xmlns:data-mapper="http://www.mulesoft.org/schema/mule/ee/data-mapper"
+	xmlns:rest-router="http://www.mulesoft.org/schema/mule/rest-router"
+	xmlns:jdbc-ee="http://www.mulesoft.org/schema/mule/ee/jdbc"
+	xmlns:scripting="http://www.mulesoft.org/schema/mule/scripting"
+	xmlns:json="http://www.mulesoft.org/schema/mule/json" xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking"
+	xmlns:cxf="http://www.mulesoft.org/schema/mule/cxf" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" version="EE-3.4.1"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
 http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
 http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd
@@ -9,41 +18,59 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
 http://www.mulesoft.org/schema/mule/cxf http://www.mulesoft.org/schema/mule/cxf/current/mule-cxf.xsd
 http://www.mulesoft.org/schema/mule/ee/jdbc http://www.mulesoft.org/schema/mule/ee/jdbc/current/mule-jdbc-ee.xsd
 http://www.mulesoft.org/schema/mule/ee/data-mapper http://www.mulesoft.org/schema/mule/ee/data-mapper/current/mule-data-mapper.xsd">
-    <spring:beans>
-        <spring:bean id="dbInitialization" name="dbinit" class="com.oreilly.test1.DBInitialization"/>
-    </spring:beans>
-    <jdbc-ee:derby-data-source name="datasource" password=""  transactionIsolation="UNSPECIFIED" doc:name="Derby Data Source" url="jdbc:derby:memory:productDB"/>
-    <jdbc-ee:connector name="ProductDatabase" dataSource-ref="datasource" validateConnections="true" queryTimeout="-1" pollingFrequency="0" doc:name="Database"/>
-    <flow name="productListFlow1" doc:name="productListFlow1">
-        <http:inbound-endpoint exchange-pattern="request-response" host="localhost" port="8087" doc:name="HTTP"/>
-        <http:body-to-parameter-map-transformer doc:name="Body to Parameter Map"/>
-        <scripting:transformer doc:name="Groovy">
-            <scripting:script engine="Groovy"><![CDATA[payload["ids"].split(",")]]></scripting:script>
-        </scripting:transformer>
-        <collection-splitter doc:name="Collection Splitter" enableCorrelation="ALWAYS"/>
-        <set-variable variableName="id" value="#[payload]" doc:name="Variable"/>
-        <jdbc-ee:outbound-endpoint exchange-pattern="request-response" queryKey="selectProducts" queryTimeout="-1" connector-ref="ProductDatabase" doc:name="DatabaseEndPoint">
-            <jdbc-ee:query key="selectProducts" value="select id,title,publisher,format,created,numpages from products where id=#[flowVars.id]"/>
-        </jdbc-ee:outbound-endpoint>
-        <scripting:component doc:name="Groovy">
-            <scripting:script engine="Groovy"><![CDATA[if (payload!=null && payload instanceof List && payload.size()>0)
-	payload[0]
-else
-	0]]></scripting:script>
-        </scripting:component>
-        <collection-aggregator failOnTimeout="true" doc:name="Collection Aggregator"/>
-        <scripting:component doc:name="Groovy">
-            <scripting:script engine="Groovy"><![CDATA[def myArray=payload.toArray().findAll{it instanceof Map}.collect{
+	<spring:beans>
+		<spring:bean id="dbInitialization" name="dbinit"
+			class="com.oreilly.test1.DBInitialization" />
+	</spring:beans>
+	<jdbc-ee:derby-data-source name="datasource"
+		password="" transactionIsolation="UNSPECIFIED" doc:name="Derby Data Source"
+		url="jdbc:derby:memory:productDB" />
+	<jdbc-ee:connector name="ProductDatabase"
+		dataSource-ref="datasource" validateConnections="true" queryTimeout="-1"
+		pollingFrequency="0" doc:name="Database" />
+
+
+	<flow name="productListFlow1" doc:name="productListFlow1">
+		<http:inbound-endpoint exchange-pattern="request-response"
+			host="localhost" port="8087" doc:name="HTTP" />
+		<http:body-to-parameter-map-transformer
+			doc:name="Body to Parameter Map" />
+		<scripting:transformer doc:name="Groovy">
+			<scripting:script engine="Groovy"><![CDATA[payload["ids"].split(",")]]></scripting:script>
+		</scripting:transformer>
+		<collection-splitter doc:name="Collection Splitter"
+			enableCorrelation="ALWAYS" />
+		<set-variable variableName="id" value="#[payload]"
+			doc:name="Variable" />
+        <flow-ref name="productLookupFlow" doc:name="Flow Reference"/>
+		<collection-aggregator failOnTimeout="true"
+			doc:name="Collection Aggregator" />
+		<scripting:component doc:name="Groovy">
+			<scripting:script engine="Groovy"><![CDATA[def myArray=payload.toArray().findAll{it instanceof com.oreilly.test1.model.Product}.sort{it.id}]]></scripting:script>
+		</scripting:component>
+		<json:object-to-json-transformer
+			doc:name="Object to JSON" />
+	</flow>
+	<flow name="productLookupFlow" doc:name="productLookupFlow">
+		<jdbc-ee:outbound-endpoint exchange-pattern="request-response"
+			queryKey="selectProducts" queryTimeout="-1" connector-ref="ProductDatabase"
+			doc:name="DatabaseEndPoint2">
+			<jdbc-ee:query key="selectProducts"
+				value="select id,title,publisher,format,created,numpages from products where id=#[flowVars.id]" />
+		</jdbc-ee:outbound-endpoint>
+		<scripting:component doc:name="Groovy2">
+			<scripting:script engine="Groovy"><![CDATA[if (payload!=null && payload instanceof List && payload.size()>0){
+	def map=payload[0]
 	def newProd=new com.oreilly.test1.model.Product()
-	newProd.id=it.get("ID")
-	newProd.title=it.get("TITLE")
-	newProd.publisher=it.get("PUBLISHER")
-	newProd.format=it.get("FORMAT")
-	newProd.numPages=it.get("NUMPAGES")
-	newProd.created=it.get("CREATED")
+	newProd.id=map.get("ID")
+	newProd.title=map.get("TITLE")
+	newProd.publisher=map.get("PUBLISHER")
+	newProd.format=map.get("FORMAT")
+	newProd.numPages=map.get("NUMPAGES")
+	newProd.created=map.get("CREATED")
 	newProd
-}.sort{it.id}]]></scripting:script>
-        </scripting:component>
-        <json:object-to-json-transformer doc:name="Object to JSON"/>
-    </flow>
+}else
+	0]]></scripting:script>
+	</scripting:component>
+	</flow>
 </mule>

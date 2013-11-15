@@ -81,6 +81,20 @@
 				</configuration>
 			</plugin>
 			<plugin>
+				<groupId>org.mule.tools</groupId>
+				<artifactId>maven-mule-plugin</artifactId>
+				<extensions>true</extensions>
+				<configuration>
+					<excludeMuleDependencies>false</excludeMuleDependencies>
+					<inclusions>
+						<inclusion>
+							<groupId>org.mule.modules</groupId>
+							<artifactId>mule-module-rest-router</artifactId>
+						</inclusion>
+					</inclusions>
+				</configuration>
+			</plugin>
+			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
 				<version>2.2.1</version>
 				<configuration>
@@ -337,6 +351,11 @@
 			<version>${mule.version}</version>
 			<scope>provided</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.mule.modules</groupId>
+			<artifactId>mule-module-rest-router</artifactId>
+			<version>RELEASE</version>
+		</dependency>
 		<!-- for testing -->
 		<dependency>
 			<groupId>org.mule.tests</groupId>
@@ -373,8 +392,15 @@
 		</repository>
 		<repository>
 			<id>mulesoft-releases</id>
-			<name>MuleSoft Releases</name>
-			<url>http://repository.mulesoft.org/releases/</url>
+			<name>MuleSoft Repository</name>
+			<url>https://repository.mulesoft.org/releases/</url>
+			<layout>default</layout>
+		</repository>
+		<repository>
+			<id>mulesoft-snapshots</id>
+			<name>MuleSoft Snapshot Repository</name>
+			<url>https://repository.mulesoft.org/snapshots/</url>
+			<layout>default</layout>
 		</repository>
 		<repository>
 			<id>oss-sonatype-snapshots</id>
