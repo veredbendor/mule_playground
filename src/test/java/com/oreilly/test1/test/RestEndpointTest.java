@@ -25,12 +25,12 @@ public class RestEndpointTest extends FunctionalTestCase {
 		Object parsedJson = JSON.parse(result.getPayloadAsString());
 		assertTrue(parsedJson instanceof Object[]);
 		Object[] array = (Object[]) parsedJson;
-		assertEquals(1,array.length);
+		assertEquals(1, array.length);
 		assertTrue(array[0] instanceof Map);
 		@SuppressWarnings("unchecked")
 		Map<String, Object> map = (Map<String, Object>) array[0];
-		assertEquals("hello1",map.get("var1") );
-		assertEquals("goodbye1",map.get("var2"));
+		assertEquals("hello1", map.get("var1"));
+		assertEquals("goodbye1", map.get("var2"));
 
 	}
 
@@ -43,23 +43,22 @@ public class RestEndpointTest extends FunctionalTestCase {
 		Object parsedJson = JSON.parse(result.getPayloadAsString());
 		assertTrue(parsedJson instanceof Object[]);
 		Object[] array = (Object[]) parsedJson;
-		assertEquals(1,array.length);
+		assertEquals(1, array.length);
 		assertTrue(array[0] instanceof Map);
 		@SuppressWarnings("unchecked")
 		Map<String, Object> map = (Map<String, Object>) array[0];
-		assertEquals("hello2",map.get("var1"));
-		assertEquals("goodbye2",map.get("var2"));
+		assertEquals("hello2", map.get("var1"));
+		assertEquals("goodbye2", map.get("var2"));
 	}
-	
+
 	@Test
 	public void testGetOther() throws Exception {
 		MuleClient client = muleContext.getClient();
-		boolean hadError=false;
-		try{
-		MuleMessage result = client
-				.request("http://127.0.0.1:8081/blah", 1000);
-		}catch(ReceiveException e){
-			hadError=true;
+		boolean hadError = false;
+		try {
+			client.request("http://127.0.0.1:8081/blah", 1000);
+		} catch (ReceiveException e) {
+			hadError = true;
 		}
 		assertTrue(hadError);
 	}

@@ -1,17 +1,14 @@
 package com.oreilly.test1.test;
 
-import static org.junit.Assert.*;
-
-import java.util.HashMap;
-import java.util.Map;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
-import org.mortbay.util.ajax.JSON;
 import org.mule.api.MuleMessage;
 import org.mule.api.client.MuleClient;
-import org.mule.api.transport.ReceiveException;
 import org.mule.tck.junit4.FunctionalTestCase;
-import static org.hamcrest.CoreMatchers.*;
 
 public class ScriptingTest extends FunctionalTestCase {
 	@Test
