@@ -7,6 +7,16 @@ import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Product {
 	
+	public Product(){}
+	public Product(String id, String title, String publisher, String format, int numPages,Date created){
+		this.id=id;
+		this.title=title;
+		this.publisher=publisher;
+		this.format=format;
+		this.numPages=numPages;
+		this.created=created;		
+	}
+	
 	private String id;
 	private String title;
 	private String publisher;
@@ -64,4 +74,6 @@ public class Product {
 	public String getTitle() {
 		return title;
 	}
+	
+	
 }
