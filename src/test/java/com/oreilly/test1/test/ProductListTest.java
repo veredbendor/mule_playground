@@ -75,7 +75,7 @@ public class ProductListTest  extends FunctionalTestCase {
 
 	@Override
 	protected String getConfigResources() {
-		return "productlist.xml,productlist-testflow.xml";
+		return "product.xml,productlist-testflow.xml";
 	}
 
 }
