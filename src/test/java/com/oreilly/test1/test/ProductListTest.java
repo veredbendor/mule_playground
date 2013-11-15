@@ -71,6 +71,28 @@ public class ProductListTest  extends FunctionalTestCase {
 		assertEquals("a1",products[0].getId());
 		assertEquals("b1",products[1].getId());
 	}
+	@Test
+	public void testNothingFound() throws Exception {
+		MuleClient client = muleContext.getClient();
+		MuleMessage result = client
+				.request("http://127.0.0.1:8087/productList?ids=fasdf%2Csdfgd", 1000);
+		assertThat(result, is(notNullValue()));
+		ObjectMapper mapper = new ObjectMapper();
+		Product[] products=mapper.readValue(result.getPayloadAsString(),Product[].class);
+		assertEquals(0,products.length);
+	}
+	@Test
+	public void testPartialFind() throws Exception {
+		MuleClient client = muleContext.getClient();
+		MuleMessage result = client
+				.request("http://127.0.0.1:8087/productList?ids=a1%2Csdfgd%2cb1%2Cgsdfgsd", 1000);
+		assertThat(result, is(notNullValue()));
+		ObjectMapper mapper = new ObjectMapper();
+		Product[] products=mapper.readValue(result.getPayloadAsString(),Product[].class);
+		assertEquals(2,products.length);
+		assertEquals("a1",products[0].getId());
+		assertEquals("b1",products[1].getId());
+	}
 	
 
 	@Override
