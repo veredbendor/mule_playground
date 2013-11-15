@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:json="http://www.mulesoft.org/schema/mule/json"
+    xmlns:spring="http://www.springframework.org/schema/beans"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:jersey="http://www.mulesoft.org/schema/mule/jersey"
+    xmlns:http="http://www.mulesoft.org/schema/mule/http"
+    xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:vm="http://www.mulesoft.org/schema/mule/vm" xmlns:pattern="http://www.mulesoft.org/schema/mule/pattern"
+        xmlns:test="http://www.mulesoft.org/schema/mule/test"
+        xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd 
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd 
+http://www.mulesoft.org/schema/mule/jersey http://www.mulesoft.org/schema/mule/jersey/current/mule-jersey.xsd 
+        http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd 
+        http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+        http://www.mulesoft.org/schema/mule/vm http://www.mulesoft.org/schema/mule/vm/current/mule-vm.xsd
+        http://www.mulesoft.org/schema/mule/pattern http://www.mulesoft.org/schema/mule/pattern/current/mule-pattern.xsd
+        http://www.mulesoft.org/schema/mule/test http://www.mulesoft.org/schema/mule/test/current/mule-test.xsd">
+    <spring:beans>
+         <context:property-placeholder location="classpath:mule-app-test.properties" />
+    </spring:beans>
+    <flow name="mockWeatherService">
+        <http:inbound-endpoint exchange-pattern="request-response" host="${weatherlookup.hostname}" port="${weatherlookup.port}" name="HTTPmock"/>
+        <!-- <set-payload value="&lt;html&gt;&lt;body&gt;&lt;h1&gt;Weather in Sebastopol,CA&lt;/h1&gt;75.50 &amp;deg; test desc&lt;/body&gt;&lt;br&gt;&lt;/html&gt;" name="Set Payload"/>-->
+        <test:component appendString=" Received"/>
+    </flow>
+</mule>
