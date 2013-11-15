@@ -7,8 +7,11 @@ import static org.junit.Assert.assertThat;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.ObjectWriter;
 import org.junit.Test;
 import org.mule.api.MuleMessage;
 import org.mule.api.client.MuleClient;
@@ -22,7 +25,7 @@ public class ProductListTest  extends FunctionalTestCase {
 	public void testFindSingleItemById() throws Exception {
 		MuleClient client = muleContext.getClient();
 		MuleMessage result = client
-				.request("http://127.0.0.1:8087/productList?ids=a1", 1000);
+				.request("http://127.0.0.1:8087/products?ids=a1", 1000);
 		assertThat(result, is(notNullValue()));
 		ObjectMapper mapper = new ObjectMapper();
 		Product[] products=mapper.readValue(result.getPayloadAsString(),Product[].class);
@@ -40,7 +43,7 @@ public class ProductListTest  extends FunctionalTestCase {
 	public void testFindAnotherItemById() throws Exception {
 		MuleClient client = muleContext.getClient();
 		MuleMessage result = client
-				.request("http://127.0.0.1:8087/productList?ids=b1", 1000);
+				.request("http://127.0.0.1:8087/products?ids=b1", 1000);
 		assertThat(result, is(notNullValue()));
 		ObjectMapper mapper = new ObjectMapper();
 		Product[] products=mapper.readValue(result.getPayloadAsString(),Product[].class);
@@ -51,7 +54,7 @@ public class ProductListTest  extends FunctionalTestCase {
 	public void testFindTwoItemsByIds() throws Exception {
 		MuleClient client = muleContext.getClient();
 		MuleMessage result = client
-				.request("http://127.0.0.1:8087/productList?ids=a1%2Cb1", 1000);
+				.request("http://127.0.0.1:8087/products?ids=a1%2Cb1", 1000);
 		assertThat(result, is(notNullValue()));
 		ObjectMapper mapper = new ObjectMapper();
 		Product[] products=mapper.readValue(result.getPayloadAsString(),Product[].class);
@@ -63,7 +66,7 @@ public class ProductListTest  extends FunctionalTestCase {
 	public void testFindTwoItemsByIdsSortedByIds() throws Exception {
 		MuleClient client = muleContext.getClient();
 		MuleMessage result = client
-				.request("http://127.0.0.1:8087/productList?ids=b1%2Ca1", 1000);
+				.request("http://127.0.0.1:8087/products?ids=b1%2Ca1", 1000);
 		assertThat(result, is(notNullValue()));
 		ObjectMapper mapper = new ObjectMapper();
 		Product[] products=mapper.readValue(result.getPayloadAsString(),Product[].class);
@@ -75,7 +78,7 @@ public class ProductListTest  extends FunctionalTestCase {
 	public void testNothingFound() throws Exception {
 		MuleClient client = muleContext.getClient();
 		MuleMessage result = client
-				.request("http://127.0.0.1:8087/productList?ids=fasdf%2Csdfgd", 1000);
+				.request("http://127.0.0.1:8087/products?ids=fasdf%2Csdfgd", 1000);
 		assertThat(result, is(notNullValue()));
 		ObjectMapper mapper = new ObjectMapper();
 		Product[] products=mapper.readValue(result.getPayloadAsString(),Product[].class);
@@ -85,13 +88,42 @@ public class ProductListTest  extends FunctionalTestCase {
 	public void testPartialFind() throws Exception {
 		MuleClient client = muleContext.getClient();
 		MuleMessage result = client
-				.request("http://127.0.0.1:8087/productList?ids=a1%2Csdfgd%2cb1%2Cgsdfgsd", 1000);
+				.request("http://127.0.0.1:8087/products?ids=a1%2Csdfgd%2cb1%2Cgsdfgsd", 1000);
 		assertThat(result, is(notNullValue()));
 		ObjectMapper mapper = new ObjectMapper();
 		Product[] products=mapper.readValue(result.getPayloadAsString(),Product[].class);
 		assertEquals(2,products.length);
 		assertEquals("a1",products[0].getId());
 		assertEquals("b1",products[1].getId());
+	}
+	
+	@Test
+	public void testCreate() throws Exception {
+		Date now= new Date();
+		Product product = new Product("c1","Title 3", "Publisher3", "format3", 456,now);
+		ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+		String productJson = ow.writeValueAsString(product);
+        Map<String, Object> props = new HashMap<String,Object>();
+        props.put("http.method", "POST");
+		MuleClient client = muleContext.getClient();
+		MuleMessage result = client
+				.send("http://127.0.0.1:8087/products", productJson,props);
+		assertThat(result, is(notNullValue()));
+		ObjectMapper mapper = new ObjectMapper();
+		String testString=result.getPayloadAsString();
+		Product returnedProduct=mapper.readValue(testString,Product.class);
+		assertEquals("c1",returnedProduct.getId());
+		assertEquals("Title 3",returnedProduct.getTitle());
+		assertEquals("Publisher3",returnedProduct.getPublisher());
+		assertEquals("format3",returnedProduct.getFormat());
+		assertEquals(now,returnedProduct.getCreated());
+		assertEquals(456,returnedProduct.getNumPages());
+		MuleMessage result2 = client
+				.request("http://127.0.0.1:8087/products?ids=c1", 1000);
+		assertThat(result2, is(notNullValue()));
+		ObjectMapper mapper2 = new ObjectMapper();
+		Product[] products=mapper2.readValue(result2.getPayloadAsString(),Product[].class);
+		assertEquals(1,products.length);
 	}
 	
 

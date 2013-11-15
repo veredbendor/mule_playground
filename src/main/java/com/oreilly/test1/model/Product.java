@@ -14,7 +14,14 @@ public class Product {
 		this.publisher=publisher;
 		this.format=format;
 		this.numPages=numPages;
-		this.created=created;		
+		this.created=created;
+		
+	}
+	
+	public java.sql.Timestamp createdAsTimestamp(){
+		if (this.created==null)
+			return null;
+		return new java.sql.Timestamp(this.created.getTime());
 	}
 	
 	private String id;

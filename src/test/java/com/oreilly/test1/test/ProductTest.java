@@ -64,8 +64,7 @@ public class ProductTest  extends FunctionalTestCase {
 		Product product=mapper.readValue(result.getPayloadAsString(),Product.class);
 		assertEquals(null,product);
 	}
-	
-	
+
 
 	@Override
 	protected String getConfigResources() {
