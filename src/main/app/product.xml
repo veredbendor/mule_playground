@@ -46,7 +46,6 @@ http://www.mulesoft.org/schema/mule/vm http://www.mulesoft.org/schema/mule/vm/cu
         </choice>
     </flow>
     <flow name="productDeleteFlow" doc:name="productDeleteFlow">
-        <vm:inbound-endpoint exchange-pattern="request-response" path="productDelete" doc:name="VM"/>
         <jdbc-ee:outbound-endpoint exchange-pattern="request-response" connector-ref="ProductDatabase" queryKey="updateQuery" queryTimeout="-1" doc:name="Database">
            <jdbc-ee:query key="updateQuery" value="Delete from  products where id=#[sessionVars.lookupProductId]"/>
         </jdbc-ee:outbound-endpoint>
@@ -54,7 +53,6 @@ http://www.mulesoft.org/schema/mule/vm http://www.mulesoft.org/schema/mule/vm/cu
         
     </flow>
     <flow name="productUpdateFlow" doc:name="productUpdateFlow">
-        <vm:inbound-endpoint exchange-pattern="request-response" path="productUpdate" doc:name="VM"/>
         <json:json-to-object-transformer doc:name="JSON to Object" returnClass="com.oreilly.test1.model.Product"/>
         <jdbc-ee:outbound-endpoint exchange-pattern="request-response" connector-ref="ProductDatabase" queryKey="updateQuery" queryTimeout="-1" doc:name="Database">
            <jdbc-ee:query key="updateQuery" value="Update products set title=#[payload.title], publisher=#[payload.publisher], format=#[payload.format], numPages=#[payload.numPages], created=#[payload.createdAsTimestamp()]
@@ -65,7 +63,6 @@ http://www.mulesoft.org/schema/mule/vm http://www.mulesoft.org/schema/mule/vm/cu
     </flow>
 		
     <flow name="productGetFlow" doc:name="productGetFlow">
-        <vm:inbound-endpoint exchange-pattern="request-response" path="productGet" doc:name="VM"/>
         <flow-ref name="productLookupFlow" doc:name="Flow Reference"/>
         <json:object-to-json-transformer doc:name="Object to JSON"/>
         <scripting:component doc:name="Groovy">
@@ -89,7 +86,6 @@ else
     </flow>
     
     <flow name="productCreateFlow" doc:name="productCreateFlow">
-        <vm:inbound-endpoint exchange-pattern="request-response" path="productCreate" doc:name="VM"/>
         <json:json-to-object-transformer returnClass="com.oreilly.test1.model.Product" doc:name="JSON to Object"/>
         <set-session-variable variableName="lookupProductId" value="#[payload.id]" doc:name="Session Variable"/>
         <jdbc-ee:outbound-endpoint exchange-pattern="request-response" queryKey="insertQuery" queryTimeout="-1" connector-ref="ProductDatabase" doc:name="DatabaseCreateCaller">
@@ -103,7 +99,6 @@ else
 
 
 	<flow name="productListFlow" doc:name="productListFlow">
-        <vm:inbound-endpoint exchange-pattern="request-response" path="productList" doc:name="VM"/>
 		<http:body-to-parameter-map-transformer
 			doc:name="Body to Parameter Map" />
 		<scripting:transformer doc:name="Groovy">
